@@ -6,7 +6,7 @@ SafeGrowth adalah sistem pertahanan sipil berbasis pemetaan (Geospatial) yang be
 
 Tema visual proyek ini adalah Cyberpunk Taktis, di mana data, keamanan, dan fungsionalitas disajikan dengan estetika neon yang tajam dan immersive.
 
-02. 🤖 ARSITEKTUR SISTEM
+02. 🤖 ARSITEKTUR SISTEM: THE MONOLITH BREAKDOWN
 
 Proyek ini menggunakan arsitektur Monorepo dengan teknologi full-stack modern:
 
@@ -36,15 +36,17 @@ Penyimpanan terstruktur untuk Laporan (reports), Validasi Komunitas (validations
 
 Geospatial
 
-Leaflet JS, OSRM (Routing Service), Nominatim (Geocoding)
+Leaflet JS, OSRM (Routing Service)
 
 Pemetaan interaktif, perhitungan rute aman (AI Route), dan pencarian lokasi.
 
-03. ⚙️ PANDUAN SETUP DAN DEPLOYMENT
+03. ⚙️ PANDUAN SETUP DAN DEPLOYMENT: KONSOL OPERASI
+
+Kami menggunakan dua konsol terpisah untuk menjalankan Fullstack Monorepo.
 
 A. Persiapan Backend (API - Port 3000)
 
-Struktur Database: Pastikan database safegrowthdb sudah dibuat dan memiliki tabel reports, users, dan validations sesuai ERD.
+Struktur Database: Pastikan safegrowthdb sudah siap (tabel reports, users, validations).
 
 Konfigurasi Akun Admin: Tambahkan akun admin default di tabel users:
 
@@ -58,7 +60,7 @@ cd safegrowth-backend
 npm install
 
 
-Konfigurasi Lingkungan (.env): Pastikan file .env sudah diisi dengan kredensial MySQL yang benar.
+Konfigurasi Lingkungan (.env): Isi kredensial MySQL.
 
 Jalankan Server:
 
@@ -78,39 +80,39 @@ Jalankan Aplikasi:
 npm run dev
 
 
-Aplikasi User Interface akan berjalan di http://localhost:5173/.
+Akses: Aplikasi User Interface akan berjalan di http://localhost:5173/.
 
-04. 💡 KEY FEATURES (Fungsi Taktis)
+04. 💡 KEY FEATURES: FUNGSI TAKTIS
 
 A. Interface Warga (User)
 
-Peta Live Interaktif: Menampilkan marker laporan dengan indikator status (Pending/Verified).
+[LIVE MAP] Peta Live Interaktif: Menampilkan marker laporan dengan indikator status (Pending/Verified).
 
-Sistem Filter Cepat: Dapat memfilter marker berdasarkan kategori (Begal, Gelap) secara real-time.
+[FILTER MODE] Sistem Filter Cepat: Memfilter marker berdasarkan kategori (Begal 🔴, Gelap 🟡) secara real-time.
 
-Validasi Komunitas: Pengguna dapat memberikan Preset Tags/Votes (Benar/Valid, Sudah Aman) pada kartu detail untuk validasi sosial.
+[SOCIAL VALIDATION] Validasi Komunitas: Pengguna dapat memberikan Preset Tags/Votes pada kartu detail.
 
-Pelaporan Canggih: Form laporan dilengkapi fitur:
+[ADVANCED REPORTING] Form Pelaporan:
 
 Anti-Bot CAPTCHA (Verifikasi Matematika)
 
 Voice Input (Input Suara untuk deskripsi darurat)
 
-Map Picker (Memilih lokasi dengan akurat di peta, didukung Reverse Geocoding).
+Map Picker (Memilih lokasi dengan akurat di peta menggunakan Reverse Geocoding).
 
-Responsif Penuh: Tampilan Bottom Navigation Bar di HP untuk UX yang optimal.
+[MOBILE UX] Responsif Penuh: Tampilan Bottom Navigation Bar untuk kemudahan akses HP.
 
 B. Command Center (Admin)
 
-Akses Terproteksi: Login Admin menggunakan otentikasi berbasis token/session.
+[SECURITY] Akses Terproteksi: Login Admin menggunakan otentikasi.
 
-Dashboard Visual: Menampilkan Area Chart (smooth curve) dan statistik laporan (Total, Pending, Verified, Rejected).
+[ANALYTICS] Dashboard Visual: Menampilkan Area Chart (smooth curve/neon) dan statistik laporan.
 
-Antrean Validasi: Admin dapat langsung memproses laporan yang masuk dengan aksi Terima (verified) atau Tolak (rejected).
+[MODERATION] Antrean Validasi: Admin dapat langsung memproses laporan dengan aksi Terima (verified) atau Tolak (rejected).
 
-Manajemen Laporan: Tabel lengkap untuk melihat dan menghapus laporan secara permanen.
+[DATABASE CONTROL] Manajemen Laporan: Tabel lengkap untuk melihat dan menghapus laporan secara permanen.
 
-05. 🚀 ENDPOINTS API UTAMA
+05. 🚀 ENDPOINTS API UTAMA (CYBER-ROUTES)
 
 METHOD
 
@@ -148,4 +150,4 @@ POST
 
 Admin: Otentikasi dan mendapatkan akses.
 
-WARNING: Jangan pernah menghapus data di Production! Gunakan fitur Factory Reset hanya untuk testing.
+WARNING: JANGAN HAPUS DATA DI PRODUCTION! Gunakan fitur Factory Reset hanya untuk testing.

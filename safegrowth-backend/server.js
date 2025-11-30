@@ -111,22 +111,18 @@ app.post('/api/reports', upload.single('image'), async (req, res) => {
     try {
         const { lat, lng, title, desc, type, locationName, anonymous_id } = req.body;
         
-        // --- PERBAIKAN: Cari atau Buat User Berdasarkan anonymous_id ---
         let userId;
         
-        // 1. Cek apakah user dengan anonymous_id ini sudah ada?
         const [existingUsers] = await db.query('SELECT id FROM users WHERE anonymous_id = ?', [anonymous_id]);
         
         if (existingUsers.length > 0) {
             userId = existingUsers[0].id;
         } else {
-            // 2. Jika belum ada, buat user baru
             const [newUser] = await db.query('INSERT INTO users (role, anonymous_id, created_at) VALUES (?, ?, NOW())', ['user', anonymous_id]);
             userId = newUser.insertId;
         }
         // -------------------------------------------------------------
 
-        // Path gambar (simpan relative path di DB)
         const imagePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
 
         const query = `
@@ -151,9 +147,7 @@ app.post('/api/reports', upload.single('image'), async (req, res) => {
     }
 });
 
-// ... (sisa kode)
 
-// D. UPDATE STATUS REPORT (Admin Action: Accept/Reject)
 app.put('/api/reports/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
@@ -172,21 +166,17 @@ app.put('/api/reports/:id/status', async (req, res) => {
     }
 });
 
-// E. DELETE REPORT (Admin Action: Hapus Permanen)
 app.delete('/api/reports/:id', async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Hapus file gambar fisik dulu jika ada (Opsional tapi recommended agar server bersih)
         const [rows] = await db.query('SELECT image_url FROM reports WHERE id = ?', [id]);
         if (rows.length > 0 && rows[0].image_url) {
             const filePath = path.join(__dirname, rows[0].image_url);
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
 
-        // Hapus data validasi terkait dulu (Foreign Key Constraint)
         await db.query('DELETE FROM validations WHERE report_id = ?', [id]);
-        // Hapus laporan
         await db.query('DELETE FROM reports WHERE id = ?', [id]);
 
         res.json({ message: "Laporan dihapus permanen" });
@@ -196,12 +186,10 @@ app.delete('/api/reports/:id', async (req, res) => {
     }
 });
 
-// F. POST VALIDATION (User Vote/Tag)
 app.post('/api/validations', async (req, res) => {
     try {
         const { report_id, tag_type, user_identifier } = req.body;
 
-        // Cek apakah user ini sudah vote tag yang sama di report yang sama? (Spam prevention)
         const [existing] = await db.query(
             'SELECT id FROM validations WHERE report_id = ? AND tag_type = ? AND user_identifier = ?',
             [report_id, tag_type, user_identifier]
@@ -224,14 +212,11 @@ app.post('/api/validations', async (req, res) => {
     }
 });
 
-//  G. ADMIN LOGIN
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Cek user di database (Role harus admin)
-        // Catatan: Di production, password harus di-hash (misal pakai bcrypt). 
-        // Di sini kita comparison string biasa untuk kemudahan development awal.
+      
         const [users] = await db.query(
             'SELECT * FROM users WHERE username = ? AND password_hash = ? AND role = "admin"', 
             [username, password]
@@ -254,8 +239,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-
-// --- 4. START SERVER ---
 app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
 });

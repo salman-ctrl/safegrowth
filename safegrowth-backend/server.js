@@ -3,34 +3,28 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const db = require('./database'); // Import koneksi db
+const db = require('./database'); 
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- 1. MIDDLEWARE ---
-app.use(cors()); // Izinkan semua request dari frontend
-app.use(express.json()); // Parsing JSON body
-app.use(express.urlencoded({ extended: true })); // Parsing form data
+app.use(cors()); 
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 
-// Serve folder 'uploads' agar gambar bisa diakses lewat URL
-// Contoh: http://localhost:3000/uploads/gambar-123.jpg
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Pastikan folder uploads ada
 const uploadDir = 'uploads';
 if (!fs.existsSync(uploadDir)){
     fs.mkdirSync(uploadDir);
 }
 
-// --- 2. KONFIGURASI UPLOAD GAMBAR (MULTER) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        // Nama file unik: timestamp + ekstensi asli
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
@@ -38,7 +32,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit 5MB
+    limits: { fileSize: 5 * 1024 * 1024 }, 
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|gif/;
         const mimetype = filetypes.test(file.mimetype);
@@ -48,14 +42,11 @@ const upload = multer({
     }
 });
 
-// --- 3. API ROUTES ---
 
-// A. TEST ROUTE
 app.get('/', (req, res) => {
     res.json({ message: "SafeGrowth Backend is Running... 🚀" });
 });
 
-// B. GET ALL REPORTS (Untuk Peta User & Admin Dashboard)
 app.get('/api/reports', async (req, res) => {
     try {
         const [reports] = await db.query(`

@@ -16,7 +16,6 @@ const AdminLayout = () => {
     <div className="min-h-screen flex flex-col md:flex-row font-sans bg-[#020204] text-slate-200">
       <div className="fixed inset-0 z-[-1] opacity-30" style={{backgroundImage: 'linear-gradient(#1a1a2e 1px, transparent 1px), linear-gradient(90deg, #1a1a2e 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>
 
-      {/* Sidebar */}
       <aside className="w-full md:w-64 glass-panel border-r border-white/10 flex flex-col z-20 md:h-screen md:sticky md:top-0">
         <div className="p-6 border-b border-white/10 flex items-center gap-3">
              <div className="w-8 h-8 rounded bg-[#FF2A6D] flex items-center justify-center text-white shadow-[0_0_15px_#FF2A6D]">
@@ -42,7 +41,6 @@ const AdminLayout = () => {
         </nav>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 overflow-y-auto">
         <Outlet />
       </main>

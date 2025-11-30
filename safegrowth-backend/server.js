@@ -106,7 +106,6 @@ app.get('/api/reports', async (req, res) => {
 
 // ... (kode sebelumnya)
 
-// C. POST REPORT (User Lapor)
 app.post('/api/reports', upload.single('image'), async (req, res) => {
     try {
         const { lat, lng, title, desc, type, locationName, anonymous_id } = req.body;
@@ -121,7 +120,6 @@ app.post('/api/reports', upload.single('image'), async (req, res) => {
             const [newUser] = await db.query('INSERT INTO users (role, anonymous_id, created_at) VALUES (?, ?, NOW())', ['user', anonymous_id]);
             userId = newUser.insertId;
         }
-        // -------------------------------------------------------------
 
         const imagePath = req.file ? req.file.path.replace(/\\/g, "/") : null;
 

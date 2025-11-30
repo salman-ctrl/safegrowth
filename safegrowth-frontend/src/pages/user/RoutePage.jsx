@@ -16,10 +16,7 @@ const createReportIcon = (type) => {
         className: 'custom-icon',
         html: `
             <div class="relative flex items-center justify-center group opacity-90 hover:opacity-100 transition-opacity cursor-pointer">
-                 <!-- Efek Glow di Belakang -->
                  <div class="absolute -inset-3 ${glowColor} rounded-full blur-md opacity-40 animate-pulse"></div>
-                 
-                 <!-- Icon Utama -->
                  <div class="relative z-10 bg-black/80 rounded-full p-1 border border-${type === 'danger' ? 'red-500' : 'yellow-400'}">
                     <i class="fa-solid ${iconClass} text-sm" style="color: ${color}; filter: drop-shadow(0 0 2px ${color});"></i>
                  </div>
@@ -42,11 +39,8 @@ const createNeonMarkerIcon = (colorType) => {
         className: 'custom-icon-neon',
         html: `
             <div class="relative w-full h-full flex items-center justify-center">
-                <!-- Neon Pulse Animation di Belakang -->
                 <div class="absolute bottom-0 w-8 h-8 ${glowColor} rounded-full blur-md opacity-60 animate-pulse"></div>
                 <div class="absolute bottom-0 w-12 h-12 ${glowColor} rounded-full blur-xl opacity-30 animate-ping"></div>
-                
-                <!-- Gambar Marker Asli -->
                 <img src="${imgUrl}" class="relative z-10 w-[25px] h-[41px]" style="filter: drop-shadow(0 0 5px ${shadowColor});">
             </div>
         `,
@@ -166,6 +160,7 @@ const RoutePage = () => {
     const [routeData, setRouteData] = useState({ safe: null, risky: null }); 
     const [activeLayer, setActiveLayer] = useState(null); 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
 
     // FETCH REPORTS
     useEffect(() => {
@@ -178,10 +173,19 @@ const RoutePage = () => {
         fetchReports();
     }, []);
 
+    // --- FIX GEOLOCATION NAME ---
     const getAddress = async (lat, lng) => {
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
             const data = await res.json();
+            
+            // Logika baru: Ambil nama tempat/jalan paling spesifik dari display_name
+            if (data && data.display_name) {
+                // Ambil bagian pertama (biasanya nama tempat)
+                return data.display_name.split(',')[0]; 
+            }
+            
+            // Fallback ke logika lama jika display_name kosong
             let address = data.address.road || data.address.suburb || "Titik Peta";
             if(data.address.city_district) address += `, ${data.address.city_district}`;
             return address;
@@ -200,6 +204,7 @@ const RoutePage = () => {
         setPickMode(null); 
         setRouteData({ safe: null, risky: null });
         setActiveLayer(null);
+        setIsSidebarMinimized(false);
     };
 
     const handleCalculate = () => {
@@ -212,6 +217,7 @@ const RoutePage = () => {
         setRouteData(prev => ({ ...prev, [data.type]: data }));
         if (data.type === 'safe' && isAnalyzing) {
             setIsAnalyzing(false);
+            setIsSidebarMinimized(true);
         }
     };
 
@@ -221,27 +227,52 @@ const RoutePage = () => {
         setRouteData({ safe: null, risky: null });
         setActiveLayer(null);
         setIsAnalyzing(false);
+        setIsSidebarMinimized(false);
     };
 
-    // --- LOGIKA KURSOR DINAMIS ---
-    // Jika pickMode = 'start', gunakan cursor biru. Jika 'end', cursor merah.
-    const cursorClass = pickMode === 'start' ? 'cursor-target-blue' 
-                      : pickMode === 'end' ? 'cursor-target-red' 
-                      : '';
+    const startPicking = (mode) => {
+        setPickMode(mode);
+    };
 
-    return (
-        <div className={`relative h-[calc(100vh-80px)] w-full ${cursorClass}`}>
-            {/* SIDEBAR UI */}
-            <div className="absolute top-4 left-4 z-[500] w-[350px] glass-panel border-l-4 border-l-cyan-400 p-6 shadow-2xl pointer-events-auto max-h-[90vh] overflow-y-auto">
+    const renderSidebar = () => {
+        if (pickMode) return null;
+
+        if (isSidebarMinimized) {
+            return (
+                <div className="absolute top-4 left-4 z-[500] animate-[fadeIn_0.3s_ease-out]">
+                    <button 
+                        onClick={() => setIsSidebarMinimized(false)}
+                        className="glass-panel p-3 rounded-full flex items-center gap-3 text-white border border-cyan-400 hover:bg-cyan-400/20 transition shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+                    >
+                        <i className="fa-solid fa-bars-staggered"></i>
+                        {routeData.safe && (
+                            <div className="flex flex-col items-start leading-none mr-2">
+                                <span className="text-[10px] text-gray-400 font-bold">RUTE DITEMUKAN</span>
+                                <span className="text-xs font-bold text-cyan-400">
+                                    {Math.round(routeData.safe.time / 60)} min <span className="text-gray-500">|</span> {(routeData.safe.dist / 1000).toFixed(1)} km
+                                </span>
+                            </div>
+                        )}
+                    </button>
+                </div>
+            );
+        }
+
+        return (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-4 z-[500] w-[95%] md:w-[350px] glass-panel border-l-4 border-l-cyan-400 p-6 shadow-2xl pointer-events-auto max-h-[80vh] overflow-y-auto rounded-xl md:rounded-none md:rounded-r-xl transition-all duration-300">
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h2 className="text-xl font-display font-bold mb-1 text-white">AI ROUTING</h2>
                         <p className="text-[10px] text-cyan-400 tracking-widest">TRAFFIC INTEL & AVOIDANCE</p>
                     </div>
-                    {isAnalyzing && <i className="fa-solid fa-circle-notch fa-spin text-cyan-400"></i>}
+                    <div className="flex gap-3">
+                        {isAnalyzing && <i className="fa-solid fa-circle-notch fa-spin text-cyan-400 mt-1"></i>}
+                        <button onClick={() => setIsSidebarMinimized(true)} className="text-gray-400 hover:text-white transition">
+                            <i className="fa-solid fa-minus"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                {/* INPUTS */}
                 <div className="space-y-4 mb-6 relative">
                     <div className="absolute left-[18px] top-8 bottom-8 w-[2px] bg-gray-700 z-0"></div>
                     
@@ -254,10 +285,10 @@ const RoutePage = () => {
                                 placeholder="Pilih Titik Awal..." 
                                 readOnly 
                                 className="w-full bg-[#050505] border border-white/10 rounded p-3 pl-10 text-xs text-white focus:border-blue-600 outline-none cursor-default"
-                                onClick={() => setPickMode('start')}
+                                onClick={() => startPicking('start')}
                             />
                             <button 
-                                onClick={() => setPickMode('start')}
+                                onClick={() => startPicking('start')}
                                 className={`px-3 rounded border border-white/10 hover:bg-white/10 ${pickMode === 'start' ? 'bg-blue-600 text-white' : 'text-gray-400'}`}
                             >
                                 <i className="fa-solid fa-map-pin"></i>
@@ -274,10 +305,10 @@ const RoutePage = () => {
                                 placeholder="Pilih Tujuan..." 
                                 readOnly 
                                 className="w-full bg-[#050505] border border-white/10 rounded p-3 pl-10 text-xs text-white focus:border-[#FF2A6D] outline-none cursor-default"
-                                onClick={() => setPickMode('end')}
+                                onClick={() => startPicking('end')}
                             />
                             <button 
-                                onClick={() => setPickMode('end')}
+                                onClick={() => startPicking('end')}
                                 className={`px-3 rounded border border-white/10 hover:bg-white/10 ${pickMode === 'end' ? 'bg-[#FF2A6D] text-white' : 'text-gray-400'}`}
                             >
                                 <i className="fa-solid fa-map-pin"></i>
@@ -343,10 +374,19 @@ const RoutePage = () => {
                     </div>
                 )}
             </div>
+        );
+    };
+
+    const cursorClass = pickMode === 'start' ? 'cursor-target-blue' : pickMode === 'end' ? 'cursor-target-red' : '';
+
+    return (
+        <div className={`relative h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] w-full ${cursorClass}`}>
+            
+            {renderSidebar()}
 
             {pickMode && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-black/80 border border-cyan-400 text-cyan-400 px-6 py-3 rounded-full shadow-[0_0_20px_#00F0FF] animate-bounce flex items-center gap-3 font-bold text-sm pointer-events-none">
-                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-ping"></div>
+                <div className="absolute top-24 md:top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-black/80 border border-cyan-400 text-cyan-400 px-6 py-3 rounded-full shadow-[0_0_20px_#00F0FF] animate-bounce flex items-center gap-3 font-bold text-sm pointer-events-none text-center w-[90%] md:w-auto justify-center">
+                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-ping shrink-0"></div>
                     KLIK PETA UNTUK MEMILIH {pickMode === 'start' ? 'TITIK AWAL' : 'TUJUAN'}
                 </div>
             )}
@@ -361,7 +401,6 @@ const RoutePage = () => {
                 
                 <LocationPicker mode={pickMode} onPick={handleMapClick} />
 
-                {/* SHOW REPORT MARKERS (BAHAYA) */}
                 {reports.map((report) => (
                     <Marker 
                         key={report.id}
@@ -370,7 +409,6 @@ const RoutePage = () => {
                     />
                 ))}
 
-                {/* START & END MARKERS WITH NEON + IMG ICON */}
                 {startPoint && <Marker position={[startPoint.lat, startPoint.lng]} icon={startIcon} />}
                 {endPoint && <Marker position={[endPoint.lat, endPoint.lng]} icon={endIcon} />}
 

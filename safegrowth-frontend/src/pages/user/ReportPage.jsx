@@ -17,11 +17,9 @@ const ReportPage = () => {
         image: null
     });
     const [preview, setPreview] = useState(null);
-
-    // --- CAPTCHA STATE ---
     const [captcha, setCaptcha] = useState({ q: '', a: 0, input: '' });
+    const [isListening, setIsListening] = useState(false);
 
-    // Generate Captcha saat load
     useEffect(() => {
         generateCaptcha();
     }, []);
@@ -32,24 +30,18 @@ const ReportPage = () => {
         setCaptcha({ q: `${num1} + ${num2}`, a: num1 + num2, input: '' });
     };
 
-    // --- LOGIC PICK LOCATION (FIXED) ---
     useEffect(() => {
         if (location.state?.pickedLocation) {
             const { lat, lng } = location.state.pickedLocation;
-            
             setForm(prev => ({ ...prev, lat, lng, location: "Mengambil data lokasi..." }));
 
-            // Fetch Nama Jalan Real-time
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
                 .then(res => res.json())
                 .then(data => {
-                    let address = data.display_name.split(',')[0]; // Ambil nama gedung/jalan saja biar pendek
+                    let address = data.display_name.split(',')[0];
                     if(data.address.road) address = data.address.road;
                     else if (data.address.suburb) address = data.address.suburb;
-                    
-                    // Tambah detail kota
                     if(data.address.city_district) address += `, ${data.address.city_district}`;
-                    
                     setForm(prev => ({ ...prev, location: address }));
                 })
                 .catch(() => {
@@ -68,16 +60,52 @@ const ReportPage = () => {
         }
     };
 
+    const handleVoiceInput = () => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Browser Anda tidak mendukung input suara.");
+            return;
+        }
+
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.lang = 'id-ID';
+        recognition.interimResults = false; 
+        recognition.maxAlternatives = 1;
+
+        setIsListening(true);
+
+        recognition.onresult = (event) => {
+            const lastResultIdx = event.results.length - 1;
+            const result = event.results[lastResultIdx];
+
+            if (result.isFinal) {
+                const transcript = result[0].transcript.trim();
+                setForm(prev => ({ 
+                    ...prev, 
+                    desc: prev.desc ? `${prev.desc} ${transcript}` : transcript 
+                }));
+                setIsListening(false);
+            }
+        };
+
+        recognition.onerror = () => {
+            setIsListening(false);
+        };
+
+        recognition.onend = () => {
+            setIsListening(false);
+        };
+
+        recognition.start();
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validasi Lokasi
         if (!form.lat || !form.lng) return alert("Lokasi wajib diisi! Gunakan tombol GPS atau Klik Peta.");
         
-        // Validasi Captcha (Anti-Bot)
         if (parseInt(captcha.input) !== captcha.a) {
             alert("Verifikasi Gagal! Jawaban matematika salah.");
-            generateCaptcha(); // Reset captcha biar bot bingung
+            generateCaptcha();
             return;
         }
 
@@ -93,7 +121,7 @@ const ReportPage = () => {
             formData.append('desc', form.desc);
             formData.append('lat', form.lat);
             formData.append('lng', form.lng);
-            formData.append('locationName', form.location); // Ini yang disimpan ke DB
+            formData.append('locationName', form.location);
             formData.append('type', form.category);
             formData.append('anonymous_id', localStorage.getItem('anon_id') || 'guest');
             if(form.image) formData.append('image', form.image);
@@ -110,8 +138,7 @@ const ReportPage = () => {
     };
 
     return (
-        <section className="relative w-full h-[calc(100vh-80px)] flex justify-center items-center overflow-hidden">
-            {/* BACKGROUND MAP DENGAN EFEK BLUR */}
+        <section className="relative w-full h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] flex justify-center items-center overflow-hidden">
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <MapContainer 
                     center={[-0.9471, 100.4172]} 
@@ -121,15 +148,14 @@ const ReportPage = () => {
                 >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 </MapContainer>
-                {/* Overlay Blur & Darken */}
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[1]"></div>
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-[1]"></div>
             </div>
 
-            <div className="glass-panel w-full max-w-2xl rounded-xl p-6 shadow-2xl relative z-10 mx-4 border-l-4 border-l-[#FF2A6D] animate-[fadeIn_0.5s_ease-out] overflow-y-auto max-h-[90vh]">
+            <div className="glass-panel w-full max-w-lg rounded-xl p-5 shadow-2xl relative z-10 mx-4 border-l-4 border-l-[#FF2A6D] animate-[fadeIn_0.5s_ease-out] overflow-y-auto max-h-[85vh] bg-black/60 backdrop-blur-xl">
                 <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
                     <div>
-                        <h2 className="text-xl font-display font-bold text-white tracking-wide">LAPOR INSIDEN</h2>
-                        <p className="text-[10px] text-gray-400 mt-1">Data tersimpan aman di server (Secure Encryption).</p>
+                        <h2 className="text-lg font-display font-bold text-white tracking-wide">LAPOR INSIDEN</h2>
+                        <p className="text-[10px] text-gray-400 mt-1">Laporan terenkripsi & anonim.</p>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-[#FF2A6D]/20 flex items-center justify-center text-[#FF2A6D] animate-pulse shadow-[0_0_15px_#FF2A6D]">
                         <i className="fa-solid fa-triangle-exclamation text-sm"></i>
@@ -137,18 +163,17 @@ const ReportPage = () => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Location */}
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold text-[#00F0FF] tracking-widest uppercase">Lokasi Kejadian (Wajib)</label>
                         <div className="flex gap-2 group">
                             <div className="relative w-full cursor-pointer" onClick={handleOpenMapPicker}>
-                                <i className="fa-solid fa-location-crosshairs absolute left-4 top-3 text-gray-500 transition group-hover:text-[#00F0FF]"></i>
+                                <i className="fa-solid fa-location-crosshairs absolute left-4 top-2.5 text-gray-500 transition group-hover:text-[#00F0FF]"></i>
                                 <input 
                                     type="text" 
                                     readOnly 
                                     value={form.location}
                                     placeholder="Klik untuk pilih lokasi di peta..." 
-                                    className="w-full bg-[#050505] border border-white/20 rounded p-2.5 pl-10 text-xs text-white focus:border-[#00F0FF] focus:shadow-[0_0_10px_#00F0FF] outline-none cursor-pointer hover:bg-white/5 transition"
+                                    className="w-full bg-[#050505]/80 border border-white/20 rounded p-2 pl-10 text-xs text-white focus:border-[#00F0FF] focus:shadow-[0_0_10px_#00F0FF] outline-none cursor-pointer hover:bg-white/5 transition"
                                 />
                             </div>
                             <button type="button" onClick={handleOpenMapPicker} className="px-3 bg-blue-600 text-white rounded font-bold hover:bg-blue-500 transition shadow-[0_0_10px_#2563EB] whitespace-nowrap text-xs">
@@ -157,48 +182,73 @@ const ReportPage = () => {
                         </div>
                     </div>
 
-                    {/* Categories */}
                     <div className="grid grid-cols-4 gap-2">
                         {[
-                            { id: 'danger', label: 'BEGAL', icon: 'fa-person-harassing', color: 'peer-checked:bg-[#FF2A6D]' },
-                            { id: 'lamp', label: 'GELAP', icon: 'fa-lightbulb', color: 'peer-checked:bg-yellow-400 peer-checked:text-black' },
-                            { id: 'road', label: 'RUSAK', icon: 'fa-road', color: 'peer-checked:bg-orange-500' },
-                            { id: 'other', label: 'LAIN', icon: 'fa-circle-info', color: 'peer-checked:bg-blue-600' }
+                            { id: 'danger', label: 'BEGAL', icon: 'fa-person-harassing', color: 'peer-checked:bg-[#FF2A6D] peer-checked:border-[#FF2A6D]' },
+                            { id: 'lamp', label: 'GELAP', icon: 'fa-lightbulb', color: 'peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400' },
+                            { id: 'road', label: 'RUSAK', icon: 'fa-road', color: 'peer-checked:bg-orange-500 peer-checked:border-orange-500' },
+                            { id: 'other', label: 'LAIN', icon: 'fa-circle-info', color: 'peer-checked:bg-blue-600 peer-checked:border-blue-600' }
                         ].map((cat) => (
-                            <label key={cat.id} className="cursor-pointer">
+                            <label key={cat.id} className="cursor-pointer relative group">
                                 <input type="radio" name="cat" value={cat.id} className="peer sr-only" onChange={(e) => setForm({...form, category: e.target.value})} checked={form.category === cat.id} />
-                                <div className={`border border-white/10 bg-[#050505] p-3 rounded text-center hover:border-white/50 ${cat.color} peer-checked:text-white transition group`}>
-                                    <i className={`fa-solid ${cat.icon} text-lg mb-1 group-hover:animate-bounce`}></i>
-                                    <div className="text-[9px] font-bold tracking-wider">{cat.label}</div>
+                                <div className={`border border-white/10 bg-[#050505]/80 p-2 rounded text-center hover:border-white/30 transition-all duration-300 ${cat.color} peer-checked:text-white peer-checked:shadow-[0_0_15px_rgba(255,255,255,0.3)]`}>
+                                    <i className={`fa-solid ${cat.icon} text-base mb-1 group-hover:scale-110 transition-transform`}></i>
+                                    <div className="text-[8px] font-bold tracking-wider">{cat.label}</div>
                                 </div>
                             </label>
                         ))}
                     </div>
 
-                    {/* Description */}
-                    <textarea className="w-full bg-[#050505] border border-white/20 rounded p-3 text-xs text-white focus:border-[#00F0FF] outline-none h-20 placeholder-gray-600" placeholder="Detail kejadian (waktu, ciri pelaku, dll)..." value={form.desc} onChange={(e) => setForm({...form, desc: e.target.value})}></textarea>
+                    <div className="relative">
+                        <textarea 
+                            className="w-full bg-[#050505]/80 border border-white/20 rounded p-3 text-xs text-white focus:border-[#00F0FF] outline-none h-20 placeholder-gray-600 resize-none pr-10" 
+                            placeholder="Detail kejadian (waktu, ciri pelaku, dll)..." 
+                            value={form.desc} 
+                            onChange={(e) => setForm({...form, desc: e.target.value})}
+                        ></textarea>
+                        <button 
+                            type="button"
+                            onClick={handleVoiceInput}
+                            className={`absolute right-2 bottom-2 w-7 h-7 rounded-full flex items-center justify-center transition-all ${isListening ? 'bg-red-500 animate-pulse text-white' : 'bg-white/10 text-gray-400 hover:bg-[#00F0FF] hover:text-white'}`}
+                            title="Bicara untuk mengetik"
+                        >
+                            <i className={`fa-solid ${isListening ? 'fa-microphone-lines' : 'fa-microphone'} text-xs`}></i>
+                        </button>
+                    </div>
 
-                    {/* Upload */}
-                    <div className="relative border-2 border-dashed border-white/20 rounded bg-[#050505]/50 p-4 text-center hover:border-[#00F0FF] hover:bg-white/5 transition cursor-pointer group" onClick={() => document.getElementById('file-upload').click()}>
-                        {preview ? <img src={preview} alt="Preview" className="h-20 mx-auto object-cover rounded shadow-lg" /> : <><i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-500 mb-1 group-hover:text-[#00F0FF]"></i><p className="text-[10px] text-gray-400 group-hover:text-white">Upload Bukti Foto</p></>}
+                    <div 
+                        className="relative border-2 border-dashed border-white/20 rounded bg-[#050505]/50 h-24 flex flex-col items-center justify-center text-center hover:border-[#00F0FF] hover:bg-white/5 transition cursor-pointer overflow-hidden group" 
+                        onClick={() => document.getElementById('file-upload').click()}
+                        style={preview ? { backgroundImage: `url(${preview})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                    >
+                        {preview && <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] group-hover:bg-black/30 transition"></div>}
+                        
+                        <div className="relative z-10 flex flex-col items-center">
+                            <i className={`fa-solid ${preview ? 'fa-pen-to-square' : 'fa-cloud-arrow-up'} text-xl mb-1 ${preview ? 'text-white' : 'text-gray-500'} group-hover:text-[#00F0FF] transition transform group-hover:scale-110`}></i>
+                            <p className={`text-[9px] ${preview ? 'text-white font-bold' : 'text-gray-400'} group-hover:text-white`}>
+                                {preview ? 'Ganti Foto' : 'Upload Bukti Foto'}
+                            </p>
+                        </div>
                         <input type="file" id="file-upload" className="hidden" accept="image/*" onChange={handleFileChange} />
                     </div>
 
-                    {/* CAPTCHA / ANTI-BOT */}
-                    <div className="flex items-center gap-3 bg-white/5 p-3 rounded border border-white/10">
-                        <div className="text-xs text-gray-400 uppercase font-bold flex-1"><i className="fa-solid fa-robot mr-1"></i> VERIFIKASI KEAMANAN</div>
-                        <div className="bg-black px-3 py-1 rounded text-[#00F0FF] font-mono font-bold text-sm tracking-widest border border-[#00F0FF]/30">{captcha.q} = ?</div>
+                    <div className="flex items-center gap-3 bg-white/5 p-2 rounded border border-white/10">
+                        <div className="text-[10px] text-gray-400 uppercase font-bold flex-1 flex items-center gap-2">
+                            <i className="fa-solid fa-robot text-[#FF2A6D]"></i> 
+                            <span>Verifikasi</span>
+                        </div>
+                        <div className="bg-black px-2 py-1 rounded text-[#00F0FF] font-mono font-bold text-xs tracking-widest border border-[#00F0FF]/30">{captcha.q} = ?</div>
                         <input 
                             type="number" 
-                            className="w-16 bg-[#050505] border border-white/20 rounded p-1 text-center text-white focus:border-[#00F0FF] outline-none font-bold"
+                            className="w-12 bg-[#050505] border border-white/20 rounded p-1 text-center text-white focus:border-[#00F0FF] outline-none font-bold text-xs"
                             placeholder="..."
                             value={captcha.input}
                             onChange={(e) => setCaptcha({...captcha, input: e.target.value})}
                         />
                     </div>
 
-                    <button disabled={loading} className="w-full bg-gradient-to-r from-[#FF2A6D] to-pink-600 text-white font-bold py-3 rounded shadow-[0_0_20px_#FF2A6D] hover:shadow-[0_0_40px_#FF2A6D] hover:scale-[1.01] transition flex justify-center items-center gap-3 disabled:opacity-50 text-sm">
-                        {loading ? <><i className="fa-solid fa-spinner fa-spin"></i> PROSES...</> : <><span>KIRIM LAPORAN</span><i className="fa-solid fa-paper-plane"></i></>}
+                    <button disabled={loading} className="w-full bg-gradient-to-r from-[#FF2A6D] to-pink-600 text-white font-bold py-2.5 rounded shadow-[0_0_20px_#FF2A6D] hover:shadow-[0_0_40px_#FF2A6D] hover:scale-[1.01] transition flex justify-center items-center gap-3 disabled:opacity-50 text-xs tracking-wider">
+                        {loading ? <><i className="fa-solid fa-spinner fa-spin"></i> MEMPROSES...</> : <><span>KIRIM LAPORAN</span><i className="fa-solid fa-paper-plane"></i></>}
                     </button>
                 </form>
             </div>

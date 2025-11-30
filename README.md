@@ -2,7 +2,7 @@
   <img src="/safegrowth-frontend/public/icon.png" width="140" />
 </p>
 
-<h1 align="center">SAFE GROWTH: URBAN DEFENSE SYSTEM </h1>
+<h1 align="center"><span style="font-weight:700;">SAFE GROWTH: URBAN DEFENSE SYSTEM</span>: URBAN DEFENSE SYSTEM 🚀</h1>
 
 <p align="center">
   <i>Sistem Pertahanan Sipil Real-Time Berbasis Geospatial • Cyberpunk Tactical Interface</i>
@@ -10,7 +10,7 @@
 
 ---
 
-# 01. PROTOKOL KLASIFIKASI
+# ## ▣ PROTOKOL KLASIFIKASI: DESKRIPSI PROYEK KLASIFIKASI
 
 ## **Deskripsi Proyek**
 
@@ -25,7 +25,61 @@ Tema visual proyek ini adalah **Cyberpunk Taktis**, menghadirkan estetika neon y
 
 ---
 
-# 02. 🤖 ARSITEKTUR SISTEM
+# ## ▣ ARSITEKTUR SISTEM: THE MONOLITH BREAKDOWN SISTEM
+
+## **The Monolith Breakdown**
+
+---
+
+# ## ▣ ERD SKEMA DATABASE: DATA FLOW MAPPING: DATA FLOW MAPPING
+
+Berikut adalah skema hubungan data kunci dalam sistem **SafeGrowth**.
+
+### **Tabel Utama**
+
+| Tabel           | Deskripsi                    | Hubungan Kunci                         |
+| --------------- | ---------------------------- | -------------------------------------- |
+| **users**       | Akun pengguna (Admin/Anonim) | 1:N ke `reports`, 1:N ke `validations` |
+| **reports**     | Data laporan kriminalitas    | N:1 ke `users`, 1:N ke `validations`   |
+| **validations** | Voting & Tag komunitas       | N:1 ke `users`, N:1 ke `reports`       |
+
+### **Detail Skema (SQL ERD Definition)**
+
+```sql
+-- ENTITY: USERS (Admin & Anonim)
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50),
+    role ENUM('admin', 'user', 'anon'),
+    anonymous_id VARCHAR(100) UNIQUE
+);
+
+-- ENTITY: REPORTS (Laporan)
+CREATE TABLE reports (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    image_url VARCHAR(255),
+    status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ENTITY: VALIDATIONS (Validasi Komunitas)
+CREATE TABLE validations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    report_id INT,
+    user_id INT,
+    tag ENUM('valid', 'safe', 'irrelevant'),
+    FOREIGN KEY (report_id) REFERENCES reports(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+---
 
 ## **The Monolith Breakdown**
 
@@ -59,7 +113,7 @@ Tema visual proyek ini adalah **Cyberpunk Taktis**, menghadirkan estetika neon y
 
 ---
 
-# 03. ⚙️ PANDUAN SETUP & DEPLOYMENT
+# ## ▣ PANDUAN SETUP DAN DEPLOYMENT: KONSOL OPERASI SETUP & DEPLOYMENT
 
 ## **Konsol Operasi**
 
@@ -122,7 +176,7 @@ Akses UI via: **[http://localhost:5173/](http://localhost:5173/)**
 
 ---
 
-# 04. 💡 KEY FEATURES: FUNGSI TAKTIS
+# ## ▣ KEY FEATURES: FUNGSI TAKTIS: FUNGSI TAKTIS
 
 ## A. Interface Warga (User)
 
@@ -170,7 +224,7 @@ Kontrol penuh laporan dalam tabel admin.
 
 ---
 
-# 05. 🚀 ENDPOINTS API UTAMA (CYBER-ROUTES)
+# ## ▣ ENDPOINTS API UTAMA (CYBER-ROUTES) API UTAMA (CYBER-ROUTES)
 
 | METHOD | ENDPOINT                | DESKRIPSI                     |
 | ------ | ----------------------- | ----------------------------- |

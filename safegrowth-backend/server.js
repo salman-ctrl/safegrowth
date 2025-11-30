@@ -65,9 +65,7 @@ app.get('/api/reports', async (req, res) => {
         `);
 
         // Kita perlu mengambil data validasi untuk setiap report agar formatnya sama dengan frontend
-        // frontend butuh: validations: { 'Benar/Valid': 0, ... }
         
-        // Loop setiap report untuk mengambil count validasi (Bisa dioptimasi pakai JOIN, tapi ini lebih mudah dibaca)
         const reportsWithValidation = await Promise.all(reports.map(async (report) => {
             const [validations] = await db.query(`
                 SELECT tag_type, COUNT(*) as count 
@@ -76,7 +74,6 @@ app.get('/api/reports', async (req, res) => {
                 GROUP BY tag_type
             `, [report.id]);
 
-            // Format ulang array SQL ke object JS
             const validationObj = {
                 'Benar/Valid': 0,
                 'Memang Gelap': 0,
@@ -90,7 +87,6 @@ app.get('/api/reports', async (req, res) => {
 
             return {
                 ...report,
-                // Ubah path gambar jadi URL lengkap jika ada
                 image: report.image_url ? `${process.env.BASE_URL}/${report.image_url}` : null,
                 validations: validationObj
             };
@@ -104,7 +100,6 @@ app.get('/api/reports', async (req, res) => {
     }
 });
 
-// ... (kode sebelumnya)
 
 app.post('/api/reports', upload.single('image'), async (req, res) => {
     try {

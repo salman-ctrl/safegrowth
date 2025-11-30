@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-electric: #2563EB;
+  --color-neon: #00F0FF;
+  --color-danger: #FF2A6D;
+  --color-void: #050505;
+}
+
+/* --- 1. GLOBAL CYBERPUNK CURSOR --- */
+/* Kursor Panah Tajam Futuristik (Default untuk seluruh web) */
+body {
+  background-color: var(--color-void);
+  color: #E2E8F0;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  /* SVG Arrow Cyan */
+  cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L11 20.5L14 13L21.5 10L2 2Z" fill="%2300F0FF" stroke="black" stroke-width="1.5"/></svg>'), auto;
+}
+
+/* Override kursor pointer (tangan) agar tetap konsisten tapi ada indikator klik */
+button, a, .cursor-pointer {
+  cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 2L11 20.5L14 13L21.5 10L2 2Z" fill="%23FF2A6D" stroke="white" stroke-width="1.5"/></svg>'), pointer;
+}
+
+/* --- 2. CUSTOM CURSORS FOR AI ROUTE (TARGET STYLE) --- */
+.cursor-target-blue {
+  cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="%2300F0FF" stroke="black" stroke-width="1.5"/><circle cx="12" cy="22" r="2" fill="rgba(0,0,0,0.3)"/></svg>') 12 22, pointer !important;
+}
+
+.cursor-target-blue .leaflet-container,
+.cursor-target-blue .leaflet-interactive {
+    cursor: inherit !important;
+}
+
+/* Pin Merah (End Point) */
+.cursor-target-red {
+  cursor: url('data:image/svg+xml;utf8,<svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="%23FF2A6D" stroke="white" stroke-width="1.5"/><circle cx="12" cy="22" r="2" fill="rgba(0,0,0,0.3)"/></svg>') 12 22, pointer !important;
+}
+
+.cursor-target-red .leaflet-container,
+.cursor-target-red .leaflet-interactive {
+    cursor: inherit !important;
+}
+
+.cursor-target-red .leaflet-container,
+.cursor-target-red .leaflet-interactive {
+    cursor: inherit !important;
+}
+
+/* CUSTOM TYPOGRAPHY UTILS */
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* LEAFLET OVERRIDES */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  z-index: 0;
+  font-family: 'Inter', sans-serif;
+}
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 10, 20, 0.9);
+  color: white;
+  border-left: 3px solid #00F0FF;
+  border-radius: 4px;
+}
+.leaflet-popup-tip {
+  background: rgba(10, 10, 20, 0.9);
+}
+
+/* GLASS PANEL & NEON EFFECTS */
+.glass-panel {
+  background: rgba(10, 10, 20, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.text-shadow-neon {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+}
+
+/* ANIMATIONS */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 10px #00F0FF; opacity: 1; }
+  50% { box-shadow: 0 0 25px #00F0FF; opacity: 0.8; }
+}
+.animate-pulse-glow { animation: pulseGlow 2s infinite; }
+
+@keyframes pulseShadow {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.8); opacity: 0.2; }
+}
+.animate-pulse-shadow { animation: pulseShadow 1.5s infinite ease-in-out; }
+
+/* MAP BACKGROUND BLUR */
+.map-bg-blur {
+  filter: grayscale(100%) invert(100%) contrast(120%) blur(4px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* FORM ELEMENTS */
+input::placeholder, textarea::placeholder {
+    color: #64748b; 
+}

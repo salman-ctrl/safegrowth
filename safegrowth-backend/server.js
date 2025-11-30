@@ -58,13 +58,10 @@ app.get('/', (req, res) => {
 // B. GET ALL REPORTS (Untuk Peta User & Admin Dashboard)
 app.get('/api/reports', async (req, res) => {
     try {
-        // Query ini mengambil laporan + menghitung jumlah validasi per tag
-        // Kita ambil data raw dulu
         const [reports] = await db.query(`
             SELECT * FROM reports ORDER BY created_at DESC
         `);
 
-        // Kita perlu mengambil data validasi untuk setiap report agar formatnya sama dengan frontend
         
         const reportsWithValidation = await Promise.all(reports.map(async (report) => {
             const [validations] = await db.query(`

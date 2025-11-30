@@ -86,13 +86,21 @@ Akses: Aplikasi User Interface akan berjalan di http://localhost:5173/.
 
 A. Interface Warga (User)
 
-[LIVE MAP] Peta Live Interaktif: Menampilkan marker laporan dengan indikator status (Pending/Verified).
+$$LIVE MAP$$
 
-[FILTER MODE] Sistem Filter Cepat: Memfilter marker berdasarkan kategori (Begal 🔴, Gelap 🟡) secara real-time.
+ Peta Live Interaktif: Menampilkan marker laporan dengan indikator status (Pending/Verified).
 
-[SOCIAL VALIDATION] Validasi Komunitas: Pengguna dapat memberikan Preset Tags/Votes pada kartu detail.
+$$FILTER MODE$$
 
-[ADVANCED REPORTING] Form Pelaporan:
+ Sistem Filter Cepat: Memfilter marker berdasarkan kategori (Begal 🔴, Gelap 🟡) secara real-time.
+
+$$SOCIAL VALIDATION$$
+
+ Validasi Komunitas: Pengguna dapat memberikan Preset Tags/Votes pada kartu detail.
+
+$$ADVANCED REPORTING$$
+
+ Form Pelaporan:
 
 Anti-Bot CAPTCHA (Verifikasi Matematika)
 
@@ -100,17 +108,27 @@ Voice Input (Input Suara untuk deskripsi darurat)
 
 Map Picker (Memilih lokasi dengan akurat di peta menggunakan Reverse Geocoding).
 
-[MOBILE UX] Responsif Penuh: Tampilan Bottom Navigation Bar untuk kemudahan akses HP.
+$$MOBILE UX$$
+
+ Responsif Penuh: Tampilan Bottom Navigation Bar untuk kemudahan akses HP.
 
 B. Command Center (Admin)
 
-[SECURITY] Akses Terproteksi: Login Admin menggunakan otentikasi.
+$$SECURITY$$
 
-[ANALYTICS] Dashboard Visual: Menampilkan Area Chart (smooth curve/neon) dan statistik laporan.
+ Akses Terproteksi: Login Admin menggunakan otentikasi.
 
-[MODERATION] Antrean Validasi: Admin dapat langsung memproses laporan dengan aksi Terima (verified) atau Tolak (rejected).
+$$ANALYTICS$$
 
-[DATABASE CONTROL] Manajemen Laporan: Tabel lengkap untuk melihat dan menghapus laporan secara permanen.
+ Dashboard Visual: Menampilkan Area Chart (smooth curve/neon) dan statistik laporan.
+
+$$MODERATION$$
+
+ Antrean Validasi: Admin dapat langsung memproses laporan dengan aksi Terima (verified) atau Tolak (rejected).
+
+$$DATABASE CONTROL$$
+
+ Manajemen Laporan: Tabel lengkap untuk melihat dan menghapus laporan secara permanen.
 
 05. 🚀 ENDPOINTS API UTAMA (CYBER-ROUTES)
 

@@ -3,10 +3,8 @@ import React from 'react';
 const SettingsAdmin = () => {
 
     const handleResetSystem = () => {
-        // Logika Reset (Idealnya panggil API DELETE /api/reports/all)
-        // Disini kita simulasi alert saja karena endpoint dangerous ini perlu proteksi
+      
         if(confirm("PERINGATAN KERAS:\n\nTindakan ini akan MENGHAPUS SEMUA LAPORAN dan data validasi dari database secara PERMANEN.\n\nApakah Anda yakin ingin melakukan Factory Reset?")) {
-            // Placeholder logic
             alert("Perintah Reset dikirim ke server. (Implementasikan endpoint DELETE ALL di backend untuk fungsi ini)");
         }
     };
@@ -15,7 +13,6 @@ const SettingsAdmin = () => {
         <div className="space-y-6 animate-[fadeIn_0.5s_ease-out]">
             <h2 className="text-2xl font-display font-bold text-white mb-6">PENGATURAN SISTEM</h2>
             
-            {/* Danger Zone */}
             <div className="glass-panel p-6 rounded-xl border-l-4 border-red-600 mb-6 relative overflow-hidden">
                  <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-red-600/10 rounded-full blur-xl pointer-events-none"></div>
                  
@@ -35,7 +32,6 @@ const SettingsAdmin = () => {
                  </button>
             </div>
 
-            {/* System Info */}
             <div className="glass-panel p-6 rounded-xl">
                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <i className="fa-solid fa-server text-blue-500"></i> Informasi Server

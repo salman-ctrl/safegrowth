@@ -4,7 +4,7 @@ import { reportService, getImageUrl } from '../../services/api';
 const ReportsAdmin = () => {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all'); // all, pending, verified, rejected
+    const [filter, setFilter] = useState('all'); 
 
     const fetchReports = async () => {
         setLoading(true);
@@ -25,7 +25,7 @@ const ReportsAdmin = () => {
     const handleStatusUpdate = async (id, status) => {
         try {
             await reportService.updateStatus(id, status);
-            fetchReports(); // Refresh data
+            fetchReports(); 
         } catch (error) {
             alert("Gagal update status");
         }
@@ -42,7 +42,6 @@ const ReportsAdmin = () => {
         }
     };
 
-    // Filter Logic
     const filteredReports = reports.filter(r => filter === 'all' ? true : r.status === filter);
 
     return (
@@ -82,7 +81,6 @@ const ReportsAdmin = () => {
                             <tr><td colSpan="7" className="p-8 text-center text-gray-500">Tidak ada laporan ditemukan.</td></tr>
                         ) : (
                             filteredReports.map((r) => {
-                                // Hitung total validasi
                                 const totalVotes = Object.values(r.validations || {}).reduce((a, b) => a + b, 0);
                                 
                                 return (

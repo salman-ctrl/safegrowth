@@ -6,7 +6,6 @@ import 'leaflet-routing-machine';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import { reportService } from '../../services/api';
 
-// --- ICON LAPORAN (LEBIH JELAS & GLOWING) ---
 const createReportIcon = (type) => {
     const color = type === 'danger' ? '#FF2A6D' : '#Facc15';
     const iconClass = type === 'danger' ? 'fa-triangle-exclamation' : 'fa-lightbulb';
@@ -26,7 +25,6 @@ const createReportIcon = (type) => {
     });
 };
 
-// --- ICON PICKER DENGAN GAMBAR + NEON EFFECT ---
 const createNeonMarkerIcon = (colorType) => {
     const imgUrl = colorType === 'blue' 
         ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png'
@@ -53,7 +51,6 @@ const createNeonMarkerIcon = (colorType) => {
 const startIcon = createNeonMarkerIcon('blue');
 const endIcon = createNeonMarkerIcon('red');
 
-// --- HELPER: INTEL GENERATOR ---
 const generateRouteIntel = (distanceMeters, type) => {
     const km = distanceMeters / 1000;
     if (type === 'safe') {
@@ -71,7 +68,6 @@ const generateRouteIntel = (distanceMeters, type) => {
     }
 };
 
-// --- COMPONENT: MAP CONTROLLER ---
 const MapController = ({ startPoint, endPoint, onRouteFound, activeLayer }) => {
     const map = useMap();
     const routingControlRef = useRef(null);
@@ -139,7 +135,6 @@ const MapController = ({ startPoint, endPoint, onRouteFound, activeLayer }) => {
     return null;
 };
 
-// --- COMPONENT: LOCATION PICKER ---
 const LocationPicker = ({ mode, onPick }) => {
     useMapEvents({
         click(e) {
@@ -151,7 +146,6 @@ const LocationPicker = ({ mode, onPick }) => {
     return null;
 };
 
-// --- MAIN PAGE ---
 const RoutePage = () => {
     const [reports, setReports] = useState([]); 
     const [startPoint, setStartPoint] = useState(null); 
@@ -162,7 +156,6 @@ const RoutePage = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isSidebarMinimized, setIsSidebarMinimized] = useState(false);
 
-    // FETCH REPORTS
     useEffect(() => {
         const fetchReports = async () => {
             try {
@@ -173,19 +166,15 @@ const RoutePage = () => {
         fetchReports();
     }, []);
 
-    // --- FIX GEOLOCATION NAME ---
     const getAddress = async (lat, lng) => {
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
             const data = await res.json();
             
-            // Logika baru: Ambil nama tempat/jalan paling spesifik dari display_name
             if (data && data.display_name) {
-                // Ambil bagian pertama (biasanya nama tempat)
                 return data.display_name.split(',')[0]; 
             }
             
-            // Fallback ke logika lama jika display_name kosong
             let address = data.address.road || data.address.suburb || "Titik Peta";
             if(data.address.city_district) address += `, ${data.address.city_district}`;
             return address;

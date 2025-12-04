@@ -6,7 +6,6 @@ const UsersAdmin = () => {
             <h2 className="text-2xl font-display font-bold text-white mb-6">MANAJEMEN PENGGUNA</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {/* Card Statistik User */}
                  <div className="glass-panel p-6 rounded-xl flex items-center gap-4 border border-white/5">
                      <div className="w-16 h-16 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-500 text-2xl shadow-[0_0_20px_rgba(37,99,235,0.3)]">
                          <i className="fa-solid fa-users"></i>
@@ -17,7 +16,6 @@ const UsersAdmin = () => {
                      </div>
                  </div>
 
-                 {/* Card Kebijakan */}
                  <div className="glass-panel p-6 rounded-xl border-l-4 border-cyan-400 relative overflow-hidden">
                      <div className="absolute right-0 top-0 p-4 opacity-10 text-6xl text-cyan-400">
                         <i className="fa-solid fa-user-secret"></i>
@@ -30,7 +28,6 @@ const UsersAdmin = () => {
                  </div>
             </div>
 
-            {/* List Simulasi User Aktif (Opsional) */}
             <div className="glass-panel p-6 rounded-xl">
                 <h3 className="text-sm font-bold text-white mb-4"><i className="fa-solid fa-wifi mr-2 text-green-400"></i>SESI AKTIF SAAT INI</h3>
                 <div className="overflow-x-auto">

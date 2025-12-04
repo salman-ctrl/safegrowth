@@ -15,7 +15,6 @@ const LoginPage = () => {
 
         try {
             await authService.login(formData.username, formData.password);
-            // Jika sukses, redirect ke dashboard admin
             navigate('/admin');
         } catch (err) {
             setError(err.response?.data?.message || "Login Gagal. Cek username/password.");
@@ -26,7 +25,6 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#020204] relative overflow-hidden font-sans">
-            {/* Background Effects */}
             <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[100px]"></div>
             <div className="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-[#FF2A6D]/20 rounded-full blur-[100px]"></div>
 

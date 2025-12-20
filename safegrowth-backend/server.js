@@ -132,7 +132,7 @@ app.post('/api/reports', upload.single('image'), async (req, res) => {
 app.put('/api/reports/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // 'verified' atau 'rejected'
+        const { status } = req.body;
 
         if (!['verified', 'rejected', 'pending'].includes(status)) {
             return res.status(400).json({ error: "Status tidak valid" });
